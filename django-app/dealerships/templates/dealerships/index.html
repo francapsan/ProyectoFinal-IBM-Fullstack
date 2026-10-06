@@ -1,0 +1,174 @@
+{% extends 'dealerships/base.html' %}
+
+{% block title %}Concesionarios | AutoPulse Hub{% endblock %}
+
+{% block content %}
+<!-- Hero Banner -->
+<div class="hero-section text-center p-4 p-md-5">
+  <h1 class="display-5 fw-bold mb-3">Red de Concesionarios Certificados</h1>
+  <p class="lead text-light-50 mx-auto" style="max-width: 750px;">
+    Explora nuestra red nacional de concesionarios, consulta calificaciones verificadas y lee reseñas analizadas con inteligencia artificial en tiempo real.
+  </p>
+  <div class="d-flex justify-content-center gap-2 mt-3">
+    {% if not user.is_authenticated %}
+      <a href="{% url 'dealerships:login' %}" class="btn btn-outline-light btn-sm px-3">
+        Inicia sesión para opinar
+      </a>
+      <a href="{% url 'dealerships:signup' %}" class="btn btn-info btn-sm px-3 text-dark fw-bold">
+        Crear cuenta gratis
+      </a>
+    {% else %}
+      <span class="badge bg-success py-2 px-3 fs-6">
+        <i class="bi bi-shield-check me-1"></i> Sesión activa como <strong>{{ user.username }}</strong>
+      </span>
+    {% endif %}
+  </div>
+</div>
+
+<!-- React.js Interactive Live Search Component Mount Point -->
+<div id="react-dealer-filter-root"></div>
+
+
+<!-- State Filter Controls -->
+<div class="card premium-card mb-4 border-0">
+  <div class="card-body p-4">
+    <div class="row align-items-center g-3">
+      <div class="col-md-5">
+        <h5 class="mb-1 text-dark fw-bold">
+          <i class="bi bi-funnel-fill text-primary me-2"></i>Filtrar por Estado
+        </h5>
+        <p class="text-muted small mb-0">Selecciona un estado para ver los concesionarios disponibles.</p>
+      </div>
+
+      <div class="col-md-7">
+        <form method="GET" action="{% url 'dealerships:index' %}" id="stateFilterForm" class="d-flex gap-2">
+          <select name="state" id="stateSelect" class="form-select form-select-lg shadow-sm" onchange="applyStateFilter(this.value)">
+            <option value="">-- Todos los Estados (All States) --</option>
+            {% for state_item in states %}
+              <option value="{{ state_item }}" {% if selected_state == state_item %}selected{% endif %}>
+                {{ state_item }}
+              </option>
+            {% endfor %}
+          </select>
+          <a href="{% url 'dealerships:index' %}" class="btn btn-outline-secondary d-flex align-items-center" title="Limpiar filtro">
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </a>
+        </form>
+      </div>
+    </div>
+
+    <!-- Quick State Pills (Kansas rubric focus) -->
+    <div class="d-flex flex-wrap gap-2 mt-3 pt-3 border-top align-items-center">
+      <span class="small fw-bold text-secondary me-2">Accesos directos:</span>
+      <a href="{% url 'dealerships:dealers_by_state' 'Kansas' %}" class="btn btn-sm {% if selected_state == 'Kansas' %}btn-primary{% else %}btn-outline-primary{% endif %} rounded-pill px-3">
+        <i class="bi bi-geo-alt-fill me-1"></i> Kansas
+      </a>
+      <a href="{% url 'dealerships:dealers_by_state' 'Texas' %}" class="btn btn-sm {% if selected_state == 'Texas' %}btn-outline-secondary{% else %}btn-outline-secondary{% endif %} rounded-pill px-3">
+        Texas
+      </a>
+      <a href="{% url 'dealerships:dealers_by_state' 'California' %}" class="btn btn-sm {% if selected_state == 'California' %}btn-outline-secondary{% else %}btn-outline-secondary{% endif %} rounded-pill px-3">
+        California
+      </a>
+      <a href="{% url 'dealerships:dealers_by_state' 'New York' %}" class="btn btn-sm {% if selected_state == 'New York' %}btn-outline-secondary{% else %}btn-outline-secondary{% endif %} rounded-pill px-3">
+        New York
+      </a>
+      <a href="{% url 'dealerships:index' %}" class="btn btn-sm btn-link text-decoration-none">
+        Mostrar todos
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Header & Counter -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h4 class="fw-bold mb-0 text-dark">
+      {% if selected_state %}
+        Concesionarios en <span class="text-primary">{{ selected_state }}</span>
+      {% else %}
+        Listado General de Concesionarios
+      {% endif %}
+    </h4>
+    <small class="text-muted">Mostrando {{ total_dealers }} resultado{{ total_dealers|pluralize }}</small>
+  </div>
+  
+  {% if selected_state %}
+    <span class="badge bg-primary fs-6 px-3 py-2">
+      Filtro Activo: {{ selected_state }}
+    </span>
+  {% endif %}
+</div>
+
+<!-- Dealerships Table -->
+<div class="card premium-card overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-hover table-dealers align-middle mb-0" id="dealershipsTable">
+      <thead>
+        <tr>
+          <th style="width: 80px;">ID</th>
+          <th>Nombre del Concesionario</th>
+          <th>Ciudad</th>
+          <th>Dirección</th>
+          <th>Código Postal</th>
+          <th>Estado</th>
+          <th class="text-center" style="width: 170px;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if dealers %}
+          {% for dealer in dealers %}
+            <tr>
+              <td>
+                <span class="badge bg-dark rounded-pill">#{{ dealer.id }}</span>
+              </td>
+              <td>
+                <a href="{% url 'dealerships:dealer_details' dealer.id %}" class="fw-bold text-decoration-none text-primary fs-6">
+                  {{ dealer.full_name|default:dealer.short_name }}
+                </a>
+              </td>
+              <td>{{ dealer.city }}</td>
+              <td class="text-secondary">{{ dealer.address }}</td>
+              <td><code>{{ dealer.zip }}</code></td>
+              <td>
+                <a href="{% url 'dealerships:dealers_by_state' dealer.state %}" class="badge bg-light text-dark border text-decoration-none py-2 px-3">
+                  <i class="bi bi-geo-alt text-primary"></i> {{ dealer.state }} ({{ dealer.st }})
+                </a>
+              </td>
+              <td class="text-center">
+                <a href="{% url 'dealerships:dealer_details' dealer.id %}" class="btn btn-primary btn-sm px-3 shadow-sm d-inline-flex align-items-center gap-1">
+                  <i class="bi bi-chat-left-text-fill"></i> Ver Reseñas
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="7" class="text-center py-5">
+              <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
+              <h5 class="text-secondary">No se encontraron concesionarios disponibles</h5>
+              <p class="text-muted">No existen registros que coincidan con el estado seleccionado.</p>
+              <a href="{% url 'dealerships:index' %}" class="btn btn-outline-primary btn-sm">Ver todos los concesionarios</a>
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script>
+  window.DEALERS_DATA = {{ dealers_json|safe }};
+  
+  function applyStateFilter(state) {
+    if (state && state.trim() !== '') {
+      // Use clean SEO/Rubric visible URL path: /dealers/<state>/
+      window.location.href = "/dealers/" + encodeURIComponent(state) + "/";
+    } else {
+      window.location.href = "{% url 'dealerships:index' %}";
+    }
+  }
+</script>
+<script src="{% static 'js/react_components.js' %}"></script>
+{% endblock %}

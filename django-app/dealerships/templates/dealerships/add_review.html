@@ -1,0 +1,131 @@
+{% extends 'dealerships/base.html' %}
+
+{% block title %}Añadir Reseña | {{ dealer.short_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card premium-card p-4 p-md-5">
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-3">
+          <li class="breadcrumb-item"><a href="{% url 'dealerships:index' %}">Concesionarios</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'dealerships:dealer_details' dealer.id %}">{{ dealer.short_name }}</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Post Review</li>
+        </ol>
+      </nav>
+
+      <div class="border-bottom pb-3 mb-4">
+        <span class="badge bg-warning text-dark px-3 py-2 fw-bold mb-2">Formulario de Calificación</span>
+        <h2 class="fw-bold text-dark mb-1">Añadir Reseña (Post Review)</h2>
+        <p class="text-secondary mb-0">
+          Publicando como <strong class="text-primary">{{ user.username }}</strong> para el concesionario <strong>{{ dealer.full_name }}</strong>.
+        </p>
+      </div>
+
+      <form method="POST" action="{% url 'dealerships:add_review' dealer.id %}" id="addReviewForm">
+        {% csrf_token %}
+
+        <!-- Review Text Area -->
+        <div class="mb-4">
+          <label for="review" class="form-label fw-bold text-dark">
+            Contenido de tu Reseña <span class="text-danger">*</span>
+          </label>
+          <textarea class="form-control" id="review" name="review" rows="5" placeholder="Describe detalladamente tu experiencia con la atención, el personal y la compra del vehículo..." required></textarea>
+          <div class="form-text">
+            <i class="bi bi-robot text-primary"></i> Nuestro analizador de inteligencia artificial clasificará automáticamente el sentimiento de esta reseña.
+          </div>
+        </div>
+
+        <!-- Purchase Verification Checkbox -->
+        <div class="form-check form-switch mb-4 p-3 bg-light rounded-3 border">
+          <input class="form-check-input ms-0 me-3" type="checkbox" id="purchase" name="purchase" checked onchange="togglePurchaseFields(this.checked)">
+          <label class="form-check-label fw-bold text-dark" for="purchase">
+            ¿Compraste un vehículo en este concesionario? (Verified Purchase)
+          </label>
+        </div>
+
+        <!-- Vehicle Details (shown if purchase is checked) -->
+        <div id="purchaseDetailsSection">
+          <h5 class="fw-bold text-dark mb-3"><i class="bi bi-car-front text-primary me-2"></i>Detalles del Vehículo Adquirido</h5>
+          
+          <div class="row g-3 mb-4">
+            <!-- Car Make Dropdown -->
+            <div class="col-md-6">
+              <label for="car_make" class="form-label fw-semibold">Marca del Vehículo (Car Make)</label>
+              <select class="form-select" id="car_make" name="car_make" required>
+                <option value="">-- Selecciona una Marca --</option>
+                {% for make in car_makes %}
+                  <option value="{{ make.name }}">{{ make.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Car Model Dropdown -->
+            <div class="col-md-6">
+              <label for="car_model" class="form-label fw-semibold">Modelo del Vehículo (Car Model)</label>
+              <select class="form-select" id="car_model" name="car_model" required>
+                <option value="">-- Selecciona un Modelo --</option>
+                {% for make in car_makes %}
+                  {% for model in make.models.all %}
+                    <option value="{{ model.name }}" data-make="{{ make.name }}">
+                      {{ model.name }} ({{ model.get_type_display }})
+                    </option>
+                  {% endfor %}
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Car Year -->
+            <div class="col-md-6">
+              <label for="car_year" class="form-label fw-semibold">Año del Modelo</label>
+              <input type="number" class="form-control" id="car_year" name="car_year" min="2000" max="2026" value="2024" required>
+            </div>
+
+            <!-- Purchase Date -->
+            <div class="col-md-6">
+              <label for="purchase_date" class="form-label fw-semibold">Fecha de Compra</label>
+              <input type="date" class="form-control" id="purchase_date" name="purchase_date" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+          <a href="{% url 'dealerships:dealer_details' dealer.id %}" class="btn btn-outline-secondary">
+            <i class="bi bi-x-circle me-1"></i> Cancelar
+          </a>
+          <button type="submit" class="btn btn-primary btn-lg px-4 shadow fw-bold">
+            <i class="bi bi-send-fill me-2"></i> Publicar Reseña (Submit Review)
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePurchaseFields(isChecked) {
+    const section = document.getElementById('purchaseDetailsSection');
+    if (section) {
+      section.style.display = isChecked ? 'block' : 'none';
+      const inputs = section.querySelectorAll('input, select');
+      inputs.forEach(input => {
+        if (!isChecked) {
+          input.removeAttribute('required');
+        } else {
+          input.setAttribute('required', 'required');
+        }
+      });
+    }
+  }
+
+  // Set default date to today
+  document.addEventListener('DOMContentLoaded', () => {
+    const dateInput = document.getElementById('purchase_date');
+    if (dateInput && !dateInput.value) {
+      dateInput.value = new Date().toISOString().split('T')[0];
+    }
+  });
+</script>
+{% endblock %}

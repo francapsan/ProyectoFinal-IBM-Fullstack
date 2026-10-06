@@ -1,0 +1,64 @@
+{% extends 'dealerships/base.html' %}
+
+{% block title %}Registrarse | AutoPulse{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7 col-lg-6">
+    <div class="card premium-card p-4 p-md-5">
+      <div class="text-center mb-4">
+        <div class="bg-primary-subtle text-primary p-3 rounded-circle d-inline-flex mb-3">
+          <i class="bi bi-person-plus-fill fs-2"></i>
+        </div>
+        <h3 class="fw-bold text-dark">Crear Cuenta Nueva</h3>
+        <p class="text-muted small">Únete a AutoPulse para compartir tu experiencia y publicar reseñas verificadas.</p>
+      </div>
+
+      <form method="POST" action="{% url 'dealerships:signup' %}">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="first_name" class="form-label fw-semibold">Nombre</label>
+            <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Ej. Javier" required>
+          </div>
+          <div class="col-md-6">
+            <label for="last_name" class="form-label fw-semibold">Apellido</label>
+            <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Ej. Rodríguez" required>
+          </div>
+          <div class="col-12">
+            <label for="username" class="form-label fw-semibold">Nombre de Usuario (Username)</label>
+            <div class="input-group">
+              <span class="input-group-text">@</span>
+              <input type="text" class="form-control" id="username" name="username" placeholder="usuario123" required>
+            </div>
+          </div>
+          <div class="col-12">
+            <label for="email" class="form-label fw-semibold">Correo Electrónico</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="usuario@ejemplo.com" required>
+          </div>
+          <div class="col-md-6">
+            <label for="password" class="form-label fw-semibold">Contraseña</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+          </div>
+          <div class="col-md-6">
+            <label for="password_confirm" class="form-label fw-semibold">Confirmar Contraseña</label>
+            <input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="••••••••" required>
+          </div>
+          <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-primary btn-lg w-100 shadow-sm fw-semibold">
+              <i class="bi bi-check-lg me-1"></i> Registrarse e Iniciar Sesión
+            </button>
+          </div>
+        </div>
+
+        <div class="text-center mt-3">
+          <p class="text-muted small mb-0">
+            ¿Ya tienes una cuenta? 
+            <a href="{% url 'dealerships:login' %}" class="text-primary fw-bold text-decoration-none">Inicia sesión</a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

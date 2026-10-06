@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: express-deployment
+  labels:
+    app: express-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: express-service
+  template:
+    metadata:
+      labels:
+        app: express-service
+    spec:
+      containers:
+        - name: express-service
+          image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/autopulse-express:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3030
+          env:
+            - name: PORT
+              value: "3030"
+            - name: MONGO_URI
+              value: "mongodb://mongo:27017/dealershipsDB"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "300m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: express-service
+  labels:
+    app: express-service
+spec:
+  ports:
+    - port: 3030
+      targetPort: 3030
+      name: http
+  selector:
+    app: express-service
+  type: ClusterIP

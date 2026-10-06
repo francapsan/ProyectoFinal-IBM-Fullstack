@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deployment
+  labels:
+    app: django-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: django-app
+  template:
+    metadata:
+      labels:
+        app: django-app
+    spec:
+      containers:
+        - name: django-app
+          image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/autopulse-django:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DJANGO_DEBUG
+              value: "False"
+            - name: DJANGO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: django-secrets
+                  key: secret-key
+                  optional: true
+            - name: EXPRESS_SERVICE_URL
+              value: "http://express-service:3030"
+            - name: SENTIMENT_SERVICE_URL
+              value: "http://sentiment-service:5000"
+            - name: DJANGO_SUPERUSER_USERNAME
+              value: "root"
+            - name: DJANGO_SUPERUSER_PASSWORD
+              value: "rootpassword123"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "150m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-service
+  labels:
+    app: django-app
+spec:
+  ports:
+    - port: 80
+      targetPort: 8000
+      name: http
+  selector:
+    app: django-app
+  type: LoadBalancer

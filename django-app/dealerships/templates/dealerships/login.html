@@ -1,0 +1,49 @@
+{% extends 'dealerships/base.html' %}
+
+{% block title %}Iniciar Sesión | AutoPulse{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card premium-card p-4 p-md-5">
+      <div class="text-center mb-4">
+        <div class="bg-primary-subtle text-primary p-3 rounded-circle d-inline-flex mb-3">
+          <i class="bi bi-person-fill-lock fs-2"></i>
+        </div>
+        <h3 class="fw-bold text-dark">Iniciar Sesión</h3>
+        <p class="text-muted small">Ingresa a tu cuenta para calificar concesionarios y publicar reseñas.</p>
+      </div>
+
+      <form method="POST" action="{% url 'dealerships:login' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="username" class="form-label fw-semibold">Nombre de Usuario</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-person"></i></span>
+            <input type="text" class="form-control form-control-lg" id="username" name="username" placeholder="Tu usuario" required autofocus>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="password" class="form-label fw-semibold">Contraseña</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+            <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-100 shadow-sm fw-semibold mb-3">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
+        </button>
+
+        <div class="text-center">
+          <p class="text-muted small mb-0">
+            ¿No tienes una cuenta aún? 
+            <a href="{% url 'dealerships:signup' %}" class="text-primary fw-bold text-decoration-none">Regístrate aquí</a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

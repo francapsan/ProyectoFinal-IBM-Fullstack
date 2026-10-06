@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # 1. Base de Datos NoSQL MongoDB
+  mongo:
+    image: mongo:6.0
+    container_name: autopulse-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - dealership-network
+
+  # 2. Microservicio Express + MongoDB
+  express-service:
+    build:
+      context: ./express-mongo-service
+      dockerfile: Dockerfile
+    container_name: autopulse-express-service
+    restart: always
+    ports:
+      - "3030:3030"
+    environment:
+      - PORT=3030
+      - MONGO_URI=mongodb://mongo:27017/dealershipsDB
+    depends_on:
+      - mongo
+    networks:
+      - dealership-network
+
+  # 3. Microservicio Analizador de Sentimientos (Flask + NLTK VADER)
+  sentiment-service:
+    build:
+      context: ./sentiment-analyzer
+      dockerfile: Dockerfile
+    container_name: autopulse-sentiment-service
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    networks:
+      - dealership-network
+
+  # 4. Aplicación Web Django
+  django-app:
+    build:
+      context: ./django-app
+      dockerfile: Dockerfile
+    container_name: autopulse-django-app
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_DEBUG=False
+      - DJANGO_SECRET_KEY=production-secret-key-autopulse-dealerships-2024
+      - EXPRESS_SERVICE_URL=http://express-service:3030
+      - SENTIMENT_SERVICE_URL=http://sentiment-service:5000
+      - DJANGO_SUPERUSER_USERNAME=root
+      - DJANGO_SUPERUSER_PASSWORD=rootpassword123
+      - DJANGO_SUPERUSER_EMAIL=root@autopulse.com
+    depends_on:
+      - express-service
+      - sentiment-service
+    networks:
+      - dealership-network
+
+networks:
+  dealership-network:
+    driver: bridge
+
+volumes:
+  mongo_data:

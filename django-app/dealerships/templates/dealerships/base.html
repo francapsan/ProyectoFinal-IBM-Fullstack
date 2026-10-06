@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AutoPulse | Red de Concesionarios y Reseñas{% endblock %}</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom Styles -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top py-3">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'dealerships:index' %}">
+        <i class="bi bi-speedometer2 text-info fs-3"></i>
+        <span>AutoPulse</span>
+        <span class="brand-badge">Dealership Hub</span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <!-- Main Navigation Links -->
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'index' or request.resolver_match.url_name == 'dealers' %}active{% endif %}" href="{% url 'dealerships:index' %}">
+              <i class="bi bi-house-door me-1"></i> Inicio / Concesionarios
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'dealerships:about' %}">
+              <i class="bi bi-info-circle me-1"></i> About Us
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'dealerships:contact' %}">
+              <i class="bi bi-envelope me-1"></i> Contact Us
+            </a>
+          </li>
+        </ul>
+
+        <!-- User Authentication & Action Area -->
+        <div class="d-flex align-items-center gap-2">
+          {% if user.is_authenticated %}
+            <!-- Authenticated User Display -->
+            <span class="badge bg-secondary py-2 px-3 d-flex align-items-center gap-1 border border-secondary-subtle">
+              <i class="bi bi-person-circle text-info"></i>
+              <span class="text-light fw-medium">{{ user.username }}</span>
+            </span>
+
+            <!-- Post Review Button in Navbar -->
+            {% if dealer %}
+              <a href="{% url 'dealerships:add_review' dealer.id %}" class="btn btn-warning btn-sm fw-semibold shadow-sm text-dark d-flex align-items-center gap-1">
+                <i class="bi bi-pencil-square"></i> Post Review
+              </a>
+            {% else %}
+              <a href="{% url 'dealerships:index' %}" class="btn btn-warning btn-sm fw-semibold shadow-sm text-dark d-flex align-items-center gap-1" title="Selecciona un concesionario para publicar reseña">
+                <i class="bi bi-pencil-square"></i> Post Review
+              </a>
+            {% endif %}
+
+            <!-- Admin Link for superuser / staff -->
+            {% if user.is_staff %}
+              <a href="/admin/" target="_blank" class="btn btn-outline-info btn-sm">
+                <i class="bi bi-shield-lock"></i> Admin
+              </a>
+            {% endif %}
+
+            <!-- Logout Button -->
+            <a href="{% url 'dealerships:logout' %}" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1">
+              <i class="bi bi-box-arrow-right"></i> Salir (Logout)
+            </a>
+          {% else %}
+            <!-- Unauthenticated Guests -->
+            <a href="{% url 'dealerships:login' %}" class="btn btn-outline-light btn-sm px-3">
+              <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión (Login)
+            </a>
+            <a href="{% url 'dealerships:signup' %}" class="btn btn-primary btn-sm px-3 shadow-sm">
+              <i class="bi bi-person-plus me-1"></i> Registrarse (Sign Up)
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages & Alerts (e.g. Logout Alert, Login Success) -->
+  <div class="container mt-3">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'info' %}warning{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show alert-custom d-flex align-items-center justify-content-between" role="alert">
+          <div>
+            {% if message.tags == 'info' %}
+              <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            {% elif message.tags == 'success' %}
+              <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+            {% elif message.tags == 'error' %}
+              <i class="bi bi-x-octagon-fill me-2 fs-5"></i>
+            {% else %}
+              <i class="bi bi-bell-fill me-2 fs-5"></i>
+            {% endif %}
+            <strong>{{ message }}</strong>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <!-- Main Content Block -->
+  <main class="main-content container my-4">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container text-center">
+      <div class="row align-items-center">
+        <div class="col-md-6 text-md-start mb-3 mb-md-0">
+          <p class="mb-0 fw-bold text-light">AutoPulse Dealership Platform</p>
+          <small class="text-secondary">Arquitectura de Microservicios: Django + Express/MongoDB + AI Sentiment Analyzer</small>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <small class="text-secondary">&copy; 2024 AutoPulse Inc. Todos los derechos reservados.</small>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

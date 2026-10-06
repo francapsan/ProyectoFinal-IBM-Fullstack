@@ -1,0 +1,162 @@
+{% extends 'dealerships/base.html' %}
+
+{% block title %}{{ dealer.full_name|default:dealer.short_name }} | AutoPulse{% endblock %}
+
+{% block content %}
+<!-- Dealer Header Card -->
+<div class="card premium-card mb-4 border-0 overflow-hidden">
+  <div class="bg-dark text-white p-4 p-md-5 position-relative">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-2">
+            <li class="breadcrumb-item"><a href="{% url 'dealerships:index' %}" class="text-info text-decoration-none">Concesionarios</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dealerships:dealers_by_state' dealer.state %}" class="text-info text-decoration-none">{{ dealer.state }}</a></li>
+            <li class="breadcrumb-item active text-light-50" aria-current="page">{{ dealer.short_name }}</li>
+          </ol>
+        </nav>
+        <h1 class="display-5 fw-bold mb-2">{{ dealer.full_name }}</h1>
+        <p class="text-secondary fs-5 mb-0">
+          <i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ dealer.address }}, {{ dealer.city }}, {{ dealer.state }} ({{ dealer.st }}) - CP: {{ dealer.zip }}
+        </p>
+      </div>
+
+      <div class="d-flex flex-column gap-2 text-md-end">
+        <span class="badge bg-primary fs-6 px-3 py-2">
+          Concesionario ID #{{ dealer.id }}
+        </span>
+        {% if user.is_authenticated %}
+          <a href="{% url 'dealerships:add_review' dealer.id %}" class="btn btn-warning btn-lg fw-bold shadow text-dark d-flex align-items-center gap-2">
+            <i class="bi bi-pencil-square"></i> Escribir Reseña (Post Review)
+          </a>
+        {% else %}
+          <a href="{% url 'dealerships:login' %}?next={% url 'dealerships:add_review' dealer.id %}" class="btn btn-outline-light btn-sm">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Inicia sesión para escribir una reseña
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Sentiment & Stats Bar -->
+  <div class="card-body bg-light p-3 p-md-4 border-top">
+    <div class="row align-items-center g-3 text-center text-md-start">
+      <div class="col-md-3">
+        <h6 class="text-muted small text-uppercase mb-1">Total de Reseñas</h6>
+        <span class="fs-4 fw-bold text-dark">{{ total_reviews }} opiniones</span>
+      </div>
+      <div class="col-md-3">
+        <h6 class="text-muted small text-uppercase mb-1">Sentimiento Positivo</h6>
+        <span class="badge bg-success-subtle text-success fs-6 border border-success-subtle px-3 py-2">
+          <i class="bi bi-emoji-smile-fill me-1"></i> {{ sentiments.positive }} Positivas
+        </span>
+      </div>
+      <div class="col-md-3">
+        <h6 class="text-muted small text-uppercase mb-1">Sentimiento Neutral</h6>
+        <span class="badge bg-secondary-subtle text-secondary fs-6 border border-secondary-subtle px-3 py-2">
+          <i class="bi bi-emoji-neutral-fill me-1"></i> {{ sentiments.neutral }} Neutrales
+        </span>
+      </div>
+      <div class="col-md-3">
+        <h6 class="text-muted small text-uppercase mb-1">Sentimiento Negativo</h6>
+        <span class="badge bg-danger-subtle text-danger fs-6 border border-danger-subtle px-3 py-2">
+          <i class="bi bi-emoji-frown-fill me-1"></i> {{ sentiments.negative }} Negativas
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reviews Section -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="fw-bold text-dark mb-0">
+    <i class="bi bi-chat-quote-fill text-primary me-2"></i>Reseñas de Clientes
+  </h3>
+  {% if user.is_authenticated %}
+    <a href="{% url 'dealerships:add_review' dealer.id %}" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-plus-circle me-1"></i> Añadir otra reseña
+    </a>
+  {% endif %}
+</div>
+
+{% if reviews %}
+  <div class="row g-3" id="reviewsContainer">
+    {% for review in reviews %}
+      <div class="col-12">
+        <div class="review-card {{ review.sentiment }} p-4 shadow-sm">
+          <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+            <div>
+              <h5 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                <span>{{ review.name }}</span>
+                {% if review.purchase %}
+                  <span class="badge bg-info-subtle text-info border border-info-subtle fw-normal small">
+                    <i class="bi bi-patch-check-fill text-info"></i> Comprador Verificado
+                  </span>
+                {% endif %}
+              </h5>
+              
+              {% if review.car_make %}
+                <small class="text-muted">
+                  <i class="bi bi-car-front-fill me-1"></i> Vehículo: 
+                  <strong>{{ review.car_make }} {{ review.car_model }}</strong> ({{ review.car_year }})
+                  {% if review.purchase_date %}
+                    | Fecha de compra: {{ review.purchase_date }}
+                  {% endif %}
+                </small>
+              {% endif %}
+            </div>
+
+            <!-- Sentiment Badge analyzed by Microservice -->
+            <div>
+              {% if review.sentiment == 'positive' %}
+                <span class="badge badge-sentiment-positive py-2 px-3 fs-6 d-flex align-items-center gap-1">
+                  <i class="bi bi-emoji-smile-fill text-success fs-5"></i>
+                  <span>Positivo</span>
+                </span>
+              {% elif review.sentiment == 'negative' %}
+                <span class="badge badge-sentiment-negative py-2 px-3 fs-6 d-flex align-items-center gap-1">
+                  <i class="bi bi-emoji-frown-fill text-danger fs-5"></i>
+                  <span>Negativo</span>
+                </span>
+              {% else %}
+                <span class="badge badge-sentiment-neutral py-2 px-3 fs-6 d-flex align-items-center gap-1">
+                  <i class="bi bi-emoji-neutral-fill text-secondary fs-5"></i>
+                  <span>Neutral</span>
+                </span>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Review Body -->
+          <div class="bg-light p-3 rounded-2 border-start border-3 border-secondary my-2">
+            <p class="mb-0 text-dark fs-6" style="white-space: pre-line;">"{{ review.review }}"</p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card premium-card p-5 text-center">
+    <i class="bi bi-chat-square-dots text-muted fs-1 mb-3"></i>
+    <h4 class="text-secondary">Este concesionario aún no tiene reseñas registradas</h4>
+    <p class="text-muted">¡Sé el primero en compartir tu experiencia de compra o servicio!</p>
+    <div>
+      {% if user.is_authenticated %}
+        <a href="{% url 'dealerships:add_review' dealer.id %}" class="btn btn-primary px-4">
+          <i class="bi bi-pencil-square me-1"></i> Publicar Primera Reseña
+        </a>
+      {% else %}
+        <a href="{% url 'dealerships:login' %}?next={% url 'dealerships:add_review' dealer.id %}" class="btn btn-outline-primary px-4">
+          Inicia sesión para opinar
+        </a>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+
+<div class="mt-4">
+  <a href="{% url 'dealerships:index' %}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i> Volver a la lista de concesionarios
+  </a>
+</div>
+{% endblock %}

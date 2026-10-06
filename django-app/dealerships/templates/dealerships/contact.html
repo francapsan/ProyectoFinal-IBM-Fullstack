@@ -1,0 +1,82 @@
+{% extends 'dealerships/base.html' %}
+
+{% block title %}Contact Us | AutoPulse Dealership Platform{% endblock %}
+
+{% block content %}
+<div class="row g-5">
+  <div class="col-lg-5">
+    <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2 rounded-pill mb-3">
+      Atención al Cliente & Soporte
+    </span>
+    <h2 class="display-6 fw-bold text-dark mb-3">Ponte en Contacto con Nosotros</h2>
+    <p class="text-secondary mb-4">
+      ¿Tienes preguntas sobre un concesionario, deseas integrar tu inventario en nuestra plataforma o requieres soporte con tu cuenta? Nuestro equipo está a tu disposición.
+    </p>
+
+    <div class="d-flex flex-column gap-3">
+      <div class="d-flex align-items-center gap-3 p-3 bg-white rounded-3 shadow-sm border">
+        <div class="bg-primary-subtle text-primary p-3 rounded-circle fs-4">
+          <i class="bi bi-geo-alt-fill"></i>
+        </div>
+        <div>
+          <h6 class="mb-0 fw-bold">Sede Central</h6>
+          <small class="text-muted">100 Tech Blvd, Suite 400, Austin, TX 78701</small>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-3 p-3 bg-white rounded-3 shadow-sm border">
+        <div class="bg-success-subtle text-success p-3 rounded-circle fs-4">
+          <i class="bi bi-telephone-fill"></i>
+        </div>
+        <div>
+          <h6 class="mb-0 fw-bold">Teléfono de Soporte</h6>
+          <small class="text-muted">+1 (800) 555-AUTO (2886)</small>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-3 p-3 bg-white rounded-3 shadow-sm border">
+        <div class="bg-info-subtle text-info p-3 rounded-circle fs-4">
+          <i class="bi bi-envelope-fill"></i>
+        </div>
+        <div>
+          <h6 class="mb-0 fw-bold">Correo Electrónico</h6>
+          <small class="text-muted">soporte@autopulse-dealers.com</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card premium-card p-4 p-md-5">
+      <h4 class="fw-bold text-dark mb-4"><i class="bi bi-send-fill text-primary me-2"></i>Envíanos un Mensaje</h4>
+      
+      <form method="POST" action="{% url 'dealerships:contact' %}">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="name" class="form-label fw-semibold">Nombre Completo</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Ej. Juan Pérez" required>
+          </div>
+          <div class="col-md-6">
+            <label for="email" class="form-label fw-semibold">Correo Electrónico</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="nombre@correo.com" required>
+          </div>
+          <div class="col-12">
+            <label for="subject" class="form-label fw-semibold">Asunto</label>
+            <input type="text" class="form-control" id="subject" name="subject" placeholder="Consulta general sobre concesionario..." required>
+          </div>
+          <div class="col-12">
+            <label for="message" class="form-label fw-semibold">Mensaje</label>
+            <textarea class="form-control" id="message" name="message" rows="5" placeholder="Escribe aquí tu consulta o comentario detallado..." required></textarea>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary btn-lg px-4 shadow-sm w-100">
+              <i class="bi bi-send me-2"></i>Enviar Mensaje
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
