@@ -127,7 +127,7 @@ const getDealersByStateHandler = async (req, res) => {
   }
 };
 
-// Helper for dealer by ID
+// Helper for dealer by ID (returns JSON array matching reference format)
 const getDealerByIdHandler = async (req, res) => {
   try {
     const dealerId = parseInt(req.params.id, 10);
@@ -135,17 +135,17 @@ const getDealerByIdHandler = async (req, res) => {
       return getDealersByStateHandler(req, res);
     }
     if (isMongoConnected) {
-      const dealer = await Dealership.findOne({ id: dealerId });
-      if (!dealer) {
+      const dealers = await Dealership.find({ id: dealerId });
+      if (!dealers || dealers.length === 0) {
         return res.status(404).json({ error: `Dealer with ID ${dealerId} not found` });
       }
-      return res.status(200).json(dealer);
+      return res.status(200).json(dealers);
     }
     const dealer = memoryDealers.find(d => d.id === dealerId);
     if (!dealer) {
       return res.status(404).json({ error: `Dealer with ID ${dealerId} not found` });
     }
-    return res.status(200).json(dealer);
+    return res.status(200).json([dealer]);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

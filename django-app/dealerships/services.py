@@ -31,10 +31,13 @@ def get_dealer_by_id(dealer_id):
     Fetch specific dealership by numeric ID.
     """
     try:
-        url = f"{EXPRESS_URL}/dealer/{dealer_id}"
+        url = f"{EXPRESS_URL}/fetchDealer/{dealer_id}"
         response = requests.get(url, timeout=5)
         if response.status_code == 200:
-            return response.json()
+            data = response.json()
+            if isinstance(data, list) and len(data) > 0:
+                return data[0]
+            return data
         logger.warning(f"Express service returned {response.status_code} for dealer {dealer_id}")
         return None
     except requests.exceptions.RequestException as e:
