@@ -20,6 +20,7 @@ urlpatterns = [
     
     # User Authentication
     path('login/', views.login_request, name='login'),
+    path('login', views.login_request, name='login_no_slash'),
     path('logout/', views.logout_request, name='logout'),
     path('signup/', views.signup_request, name='signup'),
     

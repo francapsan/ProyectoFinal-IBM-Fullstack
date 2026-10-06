@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import CarMake, CarModel
@@ -84,25 +85,61 @@ def contact(request):
     return render(request, 'dealerships/contact.html')
 
 
+@csrf_exempt
 def login_request(request):
     """
-    User authentication Login view
+    User authentication Login view (supports web form and cURL/API JSON requests)
     """
-    if request.user.is_authenticated:
-        return redirect('dealerships:index')
-
     if request.method == 'POST':
-        username = request.POST.get('username', '').strip()
-        password = request.POST.get('password', '').strip()
+        username = ''
+        password = ''
+
+        # 1. Parse JSON body if present
+        if request.body:
+            try:
+                data = json.loads(request.body.decode('utf-8'))
+                username = data.get('userName') or data.get('username') or ''
+                password = data.get('password') or ''
+            except Exception:
+                import re
+                raw = request.body.decode('utf-8')
+                u_match = re.search(r'["\']?(?:userName|username)["\']?\s*[:=]\s*["\']?([^"\'\,\}&\s]+)', raw)
+                p_match = re.search(r'["\']?password["\']?\s*[:=]\s*["\']?([^"\'\,\}&\s]+)', raw)
+                if u_match:
+                    username = u_match.group(1).strip()
+                if p_match:
+                    password = p_match.group(1).strip()
+
+        # 2. Fallback to standard POST form data
+        if not username:
+            username = request.POST.get('userName') or request.POST.get('username') or ''
+            password = request.POST.get('password') or ''
+
+        username = username.strip()
         user = authenticate(request, username=username, password=password)
+
+        # Detect if request is from cURL or expecting JSON API response
+        is_api = (
+            request.content_type == 'application/json' or
+            'application/json' in request.headers.get('Accept', '') or
+            request.GET.get('format') == 'json' or
+            'curl' in request.headers.get('User-Agent', '').lower()
+        )
 
         if user is not None:
             login(request, user)
+            if is_api:
+                return JsonResponse({"userName": user.username, "status": "Authenticated"})
             messages.success(request, f"¡Bienvenido de nuevo, {user.username}! Has iniciado sesión con éxito.")
             next_url = request.GET.get('next', 'dealerships:index')
             return redirect(next_url)
         else:
+            if is_api:
+                return JsonResponse({"userName": username, "status": "Authentication Failed"}, status=401)
             messages.error(request, "Nombre de usuario o contraseña incorrectos. Por favor, inténtalo de nuevo.")
+
+    if request.user.is_authenticated:
+        return redirect('dealerships:index')
 
     return render(request, 'dealerships/login.html')
 
