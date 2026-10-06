@@ -43,23 +43,31 @@ const reviewSchema = new mongoose.Schema({
 const Dealership = mongoose.model('Dealership', dealershipSchema);
 const Review = mongoose.model('Review', reviewSchema);
 
+// In-memory fallback dataset
+let memoryDealers = [];
+let memoryReviews = [];
+try {
+  memoryDealers = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'dealerships.json')));
+  memoryReviews = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'reviews.json')));
+} catch (e) {
+  console.warn("Could not load initial JSON memory cache:", e.message);
+}
+
+let isMongoConnected = false;
+
 // Auto-seed function
 async function seedDatabaseIfEmpty() {
   try {
     const dealerCount = await Dealership.countDocuments();
     if (dealerCount === 0) {
-      const dealersRaw = fs.readFileSync(path.join(__dirname, 'data', 'dealerships.json'));
-      const dealersData = JSON.parse(dealersRaw);
-      await Dealership.insertMany(dealersData);
-      console.log(`[SEED] Inserted ${dealersData.length} dealerships.`);
+      await Dealership.insertMany(memoryDealers);
+      console.log(`[SEED] Inserted ${memoryDealers.length} dealerships.`);
     }
 
     const reviewCount = await Review.countDocuments();
     if (reviewCount === 0) {
-      const reviewsRaw = fs.readFileSync(path.join(__dirname, 'data', 'reviews.json'));
-      const reviewsData = JSON.parse(reviewsRaw);
-      await Review.insertMany(reviewsData);
-      console.log(`[SEED] Inserted ${reviewsData.length} reviews.`);
+      await Review.insertMany(memoryReviews);
+      console.log(`[SEED] Inserted ${memoryReviews.length} reviews.`);
     }
   } catch (err) {
     console.error('[SEED ERROR]', err.message);
@@ -67,13 +75,15 @@ async function seedDatabaseIfEmpty() {
 }
 
 // Connect to MongoDB
-mongoose.connect(MONGO_URI)
+mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 2000 })
   .then(async () => {
+    isMongoConnected = true;
     console.log(`Connected to MongoDB at ${MONGO_URI}`);
     await seedDatabaseIfEmpty();
   })
   .catch(err => {
-    console.error('MongoDB connection error:', err.message);
+    isMongoConnected = false;
+    console.warn(`[INFO] MongoDB not running locally (${err.message}). Using fast in-memory JSON dataset.`);
   });
 
 // --- REST Endpoints ---
@@ -83,6 +93,7 @@ app.get('/', (req, res) => {
   res.json({
     service: "Dealership & Reviews Express/Mongo Microservice",
     status: "online",
+    storage: isMongoConnected ? "MongoDB" : "In-Memory JSON Fallback",
     endpoints: [
       "GET /dealers (or /fetchDealers)",
       "GET /dealers/:state (or /dealers/state/:state)",
@@ -97,14 +108,20 @@ app.get('/', (req, res) => {
 const getDealersByStateHandler = async (req, res) => {
   try {
     const { state } = req.params;
-    // support full state name or abbreviation (e.g. Kansas or KS)
-    const dealers = await Dealership.find({
-      $or: [
-        { state: { $regex: new RegExp(`^${state}$`, 'i') } },
-        { st: { $regex: new RegExp(`^${state}$`, 'i') } }
-      ]
-    });
-    return res.status(200).json(dealers);
+    if (isMongoConnected) {
+      const dealers = await Dealership.find({
+        $or: [
+          { state: { $regex: new RegExp(`^${state}$`, 'i') } },
+          { st: { $regex: new RegExp(`^${state}$`, 'i') } }
+        ]
+      });
+      return res.status(200).json(dealers);
+    }
+    const filtered = memoryDealers.filter(d => 
+      d.state.toLowerCase() === state.toLowerCase() || 
+      d.st.toLowerCase() === state.toLowerCase()
+    );
+    return res.status(200).json(filtered);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -115,10 +132,16 @@ const getDealerByIdHandler = async (req, res) => {
   try {
     const dealerId = parseInt(req.params.id, 10);
     if (isNaN(dealerId)) {
-      // If someone called /dealers/Kansas and matched this route
       return getDealersByStateHandler(req, res);
     }
-    const dealer = await Dealership.findOne({ id: dealerId });
+    if (isMongoConnected) {
+      const dealer = await Dealership.findOne({ id: dealerId });
+      if (!dealer) {
+        return res.status(404).json({ error: `Dealer with ID ${dealerId} not found` });
+      }
+      return res.status(200).json(dealer);
+    }
+    const dealer = memoryDealers.find(d => d.id === dealerId);
     if (!dealer) {
       return res.status(404).json({ error: `Dealer with ID ${dealerId} not found` });
     }
@@ -132,17 +155,27 @@ const getDealerByIdHandler = async (req, res) => {
 app.get(['/dealers', '/fetchDealers'], async (req, res) => {
   try {
     const { state } = req.query;
-    let query = {};
-    if (state) {
-      query = {
-        $or: [
-          { state: { $regex: new RegExp(`^${state}$`, 'i') } },
-          { st: { $regex: new RegExp(`^${state}$`, 'i') } }
-        ]
-      };
+    if (isMongoConnected) {
+      let query = {};
+      if (state) {
+        query = {
+          $or: [
+            { state: { $regex: new RegExp(`^${state}$`, 'i') } },
+            { st: { $regex: new RegExp(`^${state}$`, 'i') } }
+          ]
+        };
+      }
+      const dealers = await Dealership.find(query);
+      return res.status(200).json(dealers);
     }
-    const dealers = await Dealership.find(query);
-    return res.status(200).json(dealers);
+    if (state) {
+      const filtered = memoryDealers.filter(d => 
+        d.state.toLowerCase() === state.toLowerCase() || 
+        d.st.toLowerCase() === state.toLowerCase()
+      );
+      return res.status(200).json(filtered);
+    }
+    return res.status(200).json(memoryDealers);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -176,8 +209,12 @@ app.get(['/reviews/dealer/:id', '/fetchReviews/dealer/:id'], async (req, res) =>
     if (isNaN(dealerId)) {
       return res.status(400).json({ error: "Invalid dealer ID" });
     }
-    const reviews = await Review.find({ dealership: dealerId }).sort({ createdAt: -1 });
-    return res.status(200).json(reviews);
+    if (isMongoConnected) {
+      const reviews = await Review.find({ dealership: dealerId }).sort({ createdAt: -1 });
+      return res.status(200).json(reviews);
+    }
+    const filteredReviews = memoryReviews.filter(r => r.dealership === dealerId);
+    return res.status(200).json(filteredReviews);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -191,15 +228,23 @@ app.post(['/insert_review', '/reviews'], async (req, res) => {
       return res.status(400).json({ error: "Missing required fields: name, dealership, review" });
     }
 
-    // Auto-generate numeric ID if not provided
-    if (!reviewData.id) {
-      const highestReview = await Review.findOne().sort({ id: -1 });
-      reviewData.id = highestReview ? highestReview.id + 1 : 1;
+    if (isMongoConnected) {
+      if (!reviewData.id) {
+        const highestReview = await Review.findOne().sort({ id: -1 });
+        reviewData.id = highestReview ? highestReview.id + 1 : 1;
+      }
+      const newReview = new Review(reviewData);
+      const saved = await newReview.save();
+      return res.status(201).json(saved);
     }
 
-    const newReview = new Review(reviewData);
-    const saved = await newReview.save();
-    return res.status(201).json(saved);
+    // In-memory save fallback
+    if (!reviewData.id) {
+      const maxId = memoryReviews.reduce((max, r) => r.id > max ? r.id : max, 0);
+      reviewData.id = maxId + 1;
+    }
+    memoryReviews.unshift(reviewData);
+    return res.status(201).json(reviewData);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
