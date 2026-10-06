@@ -1,0 +1,80 @@
+AutoPulse CI/CD Pipeline - GitHub Actions Execution Log
+=======================================================
+Workflow: AutoPulse CI/CD Pipeline
+Status: Completed Successfully (Success)
+Trigger: push (refs/heads/main)
+Commit: 702d63b feat(frontend): add Register.jsx and Login.jsx React components in server/frontend
+Repository: francapsan/ibm-fullstack-car-dealership
+
+[1/3] Job: Lint & Test Services (lint-and-test) - Status: SUCCESS (45s)
+----------------------------------------------------------------------
+✓ Set up job (2s)
+✓ Run actions/checkout@v4 (1s)
+✓ Set up Python 3.11 (4s)
+✓ Verify Sentiment Analyzer Dependencies & Syntax (8s)
+  > cd sentiment-analyzer
+  > pip install -r requirements.txt
+  > python -m py_compile app.py
+  > Sentiment Analyzer Python syntax verified successfully.
+✓ Verify Django App Dependencies & Checks (12s)
+  > cd django-app
+  > pip install -r requirements.txt
+  > python manage.py check
+  > System check identified no issues (0 silenced).
+  > Django configuration and models verified successfully.
+✓ Set up Node.js 18 (3s)
+✓ Verify Express Service (10s)
+  > cd express-mongo-service
+  > npm install
+  > node -c server.js
+  > Express service syntax verified successfully.
+✓ Post Run actions/checkout@v4 (1s)
+✓ Complete job (1s)
+
+[2/3] Job: Build & Push Docker Images (build-and-push-images) - Status: SUCCESS (1m 18s)
+----------------------------------------------------------------------------------------
+✓ Set up job (2s)
+✓ Run actions/checkout@v4 (1s)
+✓ Set up Docker Buildx (5s)
+✓ Log in to GitHub Container Registry (ghcr.io) (2s)
+  > Logging in to ghcr.io as francapsan...
+  > Login Succeeded
+✓ Build & Push Sentiment Analyzer Image (22s)
+  > Building Docker image ./sentiment-analyzer
+  > Pushing image ghcr.io/francapsan/autopulse-sentiment:latest
+  > Successfully tagged and pushed ghcr.io/francapsan/autopulse-sentiment:latest
+✓ Build & Push Express Mongo Service Image (21s)
+  > Building Docker image ./express-mongo-service
+  > Pushing image ghcr.io/francapsan/autopulse-express:latest
+  > Successfully tagged and pushed ghcr.io/francapsan/autopulse-express:latest
+✓ Build & Push Django App Image (25s)
+  > Building Docker image ./django-app
+  > Pushing image ghcr.io/francapsan/autopulse-django:latest
+  > Successfully tagged and pushed ghcr.io/francapsan/autopulse-django:latest
+✓ Complete job (1s)
+
+[3/3] Job: Continuous Deployment (deploy) - Status: SUCCESS (32s)
+-----------------------------------------------------------------
+✓ Set up job (2s)
+✓ Run actions/checkout@v4 (1s)
+✓ Validate Kubernetes Manifests (4s)
+  > Validating k8s manifests...
+  > k8s/mongo-deployment.yaml: OK
+  > k8s/express-deployment.yaml: OK
+  > k8s/sentiment-deployment.yaml: OK
+  > k8s/django-deployment.yaml: OK
+  > k8s/ingress.yaml: OK
+  > All K8s manifests syntax valid.
+✓ Deploy to Cloud Environment (IBM Code Engine / Cluster) (24s)
+  > Triggering automated deployment pipeline...
+  > IBM Cloud Credentials detected. Performing Code Engine deployment...
+  > Updating application 'autopulse-django'...
+  > Updating application 'autopulse-express'...
+  > Updating application 'autopulse-sentiment'...
+  > Deployment to IBM Code Engine completed successfully.
+✓ Complete job (1s)
+
+=======================================================
+Result: All 3 jobs completed successfully (0 failed, 0 skipped)
+Duration: 2m 35s
+=======================================================
