@@ -59,14 +59,15 @@ def health_check():
         }
     }), 200
 
+@app.route("/analyze/<path:text>", methods=["GET"])
 @app.route("/analyze", methods=["GET", "POST"])
-def analyze_sentiment():
-    text = ""
-    if request.method == "POST":
-        data = request.get_json(silent=True) or {}
-        text = data.get("text", "")
-    else:
-        text = request.args.get("text", "")
+def analyze_sentiment(text=""):
+    if not text:
+        if request.method == "POST":
+            data = request.get_json(silent=True) or {}
+            text = data.get("text", "")
+        else:
+            text = request.args.get("text", "")
 
     if not text:
         return jsonify({
