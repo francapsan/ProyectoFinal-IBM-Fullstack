@@ -163,26 +163,50 @@ def logout_request(request):
     return redirect('dealerships:index')
 
 
+@csrf_exempt
 def signup_request(request):
     """
-    User registration Sign-Up view
+    User registration Sign-Up view (supports both web form and React / API JSON requests)
     """
-    if request.user.is_authenticated:
-        return redirect('dealerships:index')
-
     if request.method == 'POST':
-        username = request.POST.get('username', '').strip()
-        first_name = request.POST.get('first_name', '').strip()
-        last_name = request.POST.get('last_name', '').strip()
-        email = request.POST.get('email', '').strip()
-        password = request.POST.get('password', '').strip()
-        password_confirm = request.POST.get('password_confirm', '').strip()
+        username = ''
+        first_name = ''
+        last_name = ''
+        email = ''
+        password = ''
 
-        if password != password_confirm:
-            messages.error(request, "Las contraseñas no coinciden.")
-            return render(request, 'dealerships/register.html')
+        # Parse JSON if present
+        if request.body:
+            try:
+                data = json.loads(request.body.decode('utf-8'))
+                username = data.get('userName') or data.get('username') or ''
+                first_name = data.get('firstName') or data.get('first_name') or ''
+                last_name = data.get('lastName') or data.get('last_name') or ''
+                email = data.get('email') or ''
+                password = data.get('password') or ''
+            except Exception:
+                pass
+
+        # Fallback to standard form post
+        if not username:
+            username = request.POST.get('userName') or request.POST.get('username') or ''
+            first_name = request.POST.get('firstName') or request.POST.get('first_name') or ''
+            last_name = request.POST.get('lastName') or request.POST.get('last_name') or ''
+            email = request.POST.get('email') or ''
+            password = request.POST.get('password') or ''
+
+        username = username.strip()
+        is_api = (
+            request.content_type == 'application/json' or
+            'application/json' in request.headers.get('Accept', '') or
+            request.path.startswith('/djangoapp/register') or
+            request.path.endswith('/register') or
+            'curl' in request.headers.get('User-Agent', '').lower()
+        )
 
         if User.objects.filter(username=username).exists():
+            if is_api:
+                return JsonResponse({"userName": username, "error": "Already Registered"}, status=400)
             messages.error(request, f"El nombre de usuario '{username}' ya está en uso.")
             return render(request, 'dealerships/register.html')
 
@@ -194,7 +218,14 @@ def signup_request(request):
             last_name=last_name
         )
         login(request, user)
+
+        if is_api:
+            return JsonResponse({"userName": user.username, "status": True})
+
         messages.success(request, f"¡Cuenta creada con éxito! Bienvenido a la plataforma, {username}.")
+        return redirect('dealerships:index')
+
+    if request.user.is_authenticated:
         return redirect('dealerships:index')
 
     return render(request, 'dealerships/register.html')

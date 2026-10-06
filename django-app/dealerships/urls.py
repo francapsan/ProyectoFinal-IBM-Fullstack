@@ -24,6 +24,8 @@ urlpatterns = [
     path('logout/', views.logout_request, name='logout'),
     path('logout', views.logout_request, name='logout_no_slash'),
     path('signup/', views.signup_request, name='signup'),
+    path('register/', views.signup_request, name='register'),
+    path('register', views.signup_request, name='register_no_slash'),
     
     # API endpoints for Capstone tasks & React
     path('api/cars/', views.get_cars_api, name='get_cars_api'),
