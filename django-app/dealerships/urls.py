@@ -22,8 +22,18 @@ urlpatterns = [
     path('login/', views.login_request, name='login'),
     path('login', views.login_request, name='login_no_slash'),
     path('logout/', views.logout_request, name='logout'),
+    path('logout', views.logout_request, name='logout_no_slash'),
     path('signup/', views.signup_request, name='signup'),
     
-    # API proxy helpers (for frontend React or JS if needed)
+    # API endpoints for Capstone tasks & React
     path('api/cars/', views.get_cars_api, name='get_cars_api'),
+    path('get_cars/', views.get_cars_api, name='get_cars'),
+    path('get_cars', views.get_cars_api, name='get_cars_no_slash'),
+    path('getcars', views.get_cars_api, name='getcars'),
+    path('get_dealers/', views.get_dealers_api, name='get_dealers_api'),
+    path('get_dealers', views.get_dealers_api, name='get_dealers_api_no_slash'),
+    path('get_dealers/<str:state>/', views.get_dealers_by_state_api, name='get_dealers_by_state_api'),
+    path('get_dealers/<str:state>', views.get_dealers_by_state_api, name='get_dealers_by_state_api_no_slash'),
+    path('get_reviews/<int:dealer_id>/', views.get_dealer_reviews_api, name='get_dealer_reviews_api'),
+    path('get_reviews/<int:dealer_id>', views.get_dealer_reviews_api, name='get_dealer_reviews_api_no_slash'),
 ]

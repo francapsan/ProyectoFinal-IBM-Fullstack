@@ -1,0 +1,13 @@
+$ curl -X GET http://127.0.0.1:3030/dealer/1
+{
+  "id": 1,
+  "city": "Wichita",
+  "state": "Kansas",
+  "st": "KS",
+  "address": "401 N Main St",
+  "zip": "67202",
+  "lat": 37.6979,
+  "long": -97.3148,
+  "short_name": "Kansas Auto Hub",
+  "full_name": "Kansas Premier Auto Hub"
+}

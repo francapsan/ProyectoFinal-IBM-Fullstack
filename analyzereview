@@ -1,0 +1,13 @@
+$ curl -X GET "http://127.0.0.1:5000/analyze?text=Servicios%20fant%C3%A1sticos"
+{
+  "compound_score": 0.6369,
+  "scores": {
+    "compound": 0.6369,
+    "neg": 0.0,
+    "neu": 0.192,
+    "pos": 0.808
+  },
+  "sentiment": "positive",
+  "status": 200,
+  "text": "Servicios fantásticos"
+}

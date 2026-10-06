@@ -1,0 +1,101 @@
+$ curl -X GET http://127.0.0.1:8000/djangoapp/get_cars
+{
+  "CarModels": [
+    {
+      "CarMake": "BMW",
+      "CarModel": "3 Series",
+      "Type": "SEDAN",
+      "Year": 2024
+    },
+    {
+      "CarMake": "BMW",
+      "CarModel": "M4",
+      "Type": "COUPE",
+      "Year": 2023
+    },
+    {
+      "CarMake": "BMW",
+      "CarModel": "X5",
+      "Type": "SUV",
+      "Year": 2024
+    },
+    {
+      "CarMake": "Chevrolet",
+      "CarModel": "Corvette",
+      "Type": "COUPE",
+      "Year": 2024
+    },
+    {
+      "CarMake": "Chevrolet",
+      "CarModel": "Silverado",
+      "Type": "PICKUP",
+      "Year": 2024
+    },
+    {
+      "CarMake": "Chevrolet",
+      "CarModel": "Tahoe",
+      "Type": "SUV",
+      "Year": 2023
+    },
+    {
+      "CarMake": "Ford",
+      "CarModel": "Explorer",
+      "Type": "SUV",
+      "Year": 2023
+    },
+    {
+      "CarMake": "Ford",
+      "CarModel": "F-150",
+      "Type": "PICKUP",
+      "Year": 2023
+    },
+    {
+      "CarMake": "Ford",
+      "CarModel": "Mustang",
+      "Type": "COUPE",
+      "Year": 2024
+    },
+    {
+      "CarMake": "Honda",
+      "CarModel": "Accord",
+      "Type": "SEDAN",
+      "Year": 2023
+    },
+    {
+      "CarMake": "Honda",
+      "CarModel": "CR-V",
+      "Type": "SUV",
+      "Year": 2024
+    },
+    {
+      "CarMake": "Honda",
+      "CarModel": "Civic",
+      "Type": "SEDAN",
+      "Year": 2022
+    },
+    {
+      "CarMake": "Toyota",
+      "CarModel": "Camry",
+      "Type": "SEDAN",
+      "Year": 2023
+    },
+    {
+      "CarMake": "Toyota",
+      "CarModel": "Corolla",
+      "Type": "SEDAN",
+      "Year": 2024
+    },
+    {
+      "CarMake": "Toyota",
+      "CarModel": "Highlander",
+      "Type": "SUV",
+      "Year": 2023
+    },
+    {
+      "CarMake": "Toyota",
+      "CarModel": "RAV4",
+      "Type": "SUV",
+      "Year": 2024
+    }
+  ]
+}

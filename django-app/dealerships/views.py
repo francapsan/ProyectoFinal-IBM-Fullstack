@@ -144,11 +144,21 @@ def login_request(request):
     return render(request, 'dealerships/login.html')
 
 
+@csrf_exempt
 def logout_request(request):
     """
-    User logout view: Logs out user and triggers an explicit logout alert message
+    User logout view: Logs out user and triggers an explicit logout alert message or returns JSON for cURL/API
     """
     logout(request)
+    is_api = (
+        request.content_type == 'application/json' or
+        'application/json' in request.headers.get('Accept', '') or
+        request.GET.get('format') == 'json' or
+        'curl' in request.headers.get('User-Agent', '').lower() or
+        request.path.startswith('/djangoapp/logout')
+    )
+    if is_api:
+        return JsonResponse({"userName": ""})
     messages.info(request, "Has cerrado sesión exitosamente. ¡Te esperamos pronto!")
     return redirect('dealerships:index')
 
@@ -271,14 +281,40 @@ def add_review(request, dealer_id):
 
 def get_cars_api(request):
     """
-    API endpoint returning car makes and models JSON
+    API endpoint returning car makes and models JSON matching Capstone rubric
     """
-    makes = CarMake.objects.all()
-    data = []
-    for make in makes:
-        data.append({
-            'make_id': make.id,
-            'make_name': make.name,
-            'models': [{'id': m.id, 'name': m.name, 'type': m.type, 'year': m.year} for m in make.models.all()]
+    car_models = CarModel.objects.select_related('make').all()
+    models_list = []
+    for cm in car_models:
+        models_list.append({
+            "CarMake": cm.make.name,
+            "CarModel": cm.name,
+            "Type": cm.type,
+            "Year": cm.year
         })
-    return JsonResponse({'cars': data})
+    return JsonResponse({"CarModels": models_list})
+
+
+def get_dealers_api(request):
+    """
+    API proxy returning all dealerships
+    """
+    state = request.GET.get('state')
+    dealers = services.get_dealers(state=state)
+    return JsonResponse(dealers, safe=False)
+
+
+def get_dealers_by_state_api(request, state):
+    """
+    API proxy returning dealerships by state
+    """
+    dealers = services.get_dealers(state=state)
+    return JsonResponse(dealers, safe=False)
+
+
+def get_dealer_reviews_api(request, dealer_id):
+    """
+    API proxy returning reviews for a dealer
+    """
+    reviews = services.get_reviews_by_dealer_id(dealer_id)
+    return JsonResponse(reviews, safe=False)

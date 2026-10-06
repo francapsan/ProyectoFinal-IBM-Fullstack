@@ -1,0 +1,87 @@
+$ curl -X GET http://127.0.0.1:3030/dealers
+[
+  {
+    "id": 1,
+    "city": "Wichita",
+    "state": "Kansas",
+    "st": "KS",
+    "address": "401 N Main St",
+    "zip": "67202",
+    "lat": 37.6979,
+    "long": -97.3148,
+    "short_name": "Kansas Auto Hub",
+    "full_name": "Kansas Premier Auto Hub"
+  },
+  {
+    "id": 2,
+    "city": "Overland Park",
+    "state": "Kansas",
+    "st": "KS",
+    "address": "8500 W 110th St",
+    "zip": "66210",
+    "lat": 38.9283,
+    "long": -94.6836,
+    "short_name": "Overland Motors",
+    "full_name": "Overland Park Premium Motors"
+  },
+  {
+    "id": 3,
+    "city": "Dallas",
+    "state": "Texas",
+    "st": "TX",
+    "address": "1200 Commerce St",
+    "zip": "75202",
+    "lat": 32.7801,
+    "long": -96.8005,
+    "short_name": "Lone Star Cars",
+    "full_name": "Lone Star Luxury Car Dealership"
+  },
+  {
+    "id": 4,
+    "city": "Austin",
+    "state": "Texas",
+    "st": "TX",
+    "address": "500 E 4th St",
+    "zip": "78701",
+    "lat": 30.2649,
+    "long": -97.7404,
+    "short_name": "Austin Velocity",
+    "full_name": "Austin Velocity Dealership"
+  },
+  {
+    "id": 5,
+    "city": "Los Angeles",
+    "state": "California",
+    "st": "CA",
+    "address": "1000 S Hope St",
+    "zip": "90015",
+    "lat": 34.0438,
+    "long": -118.2589,
+    "short_name": "Pacific Coast Auto",
+    "full_name": "Pacific Coast Auto Gallery"
+  },
+  {
+    "id": 6,
+    "city": "San Francisco",
+    "state": "California",
+    "st": "CA",
+    "address": "750 Folsom St",
+    "zip": "94107",
+    "lat": 37.7842,
+    "long": -122.4016,
+    "short_name": "Golden Gate Motors",
+    "full_name": "Golden Gate Prestige Motors"
+  },
+  {
+    "id": 7,
+    "city": "New York",
+    "state": "New York",
+    "st": "NY",
+    "address": "550 W 54th St",
+    "zip": "10019",
+    "lat": 40.7685,
+    "long": -73.9922,
+    "short_name": "Manhattan Wheels",
+    "full_name": "Manhattan Wheels Luxury Group"
+  }
+]

@@ -1,0 +1,36 @@
+$ curl -X GET http://127.0.0.1:3030/reviews/dealer/1
+[
+  {
+    "id": 1,
+    "name": "Sarah Jenkins",
+    "dealership": 1,
+    "review": "Exceptional customer service! The sales team at Kansas Premier Auto Hub made purchasing my new sedan effortless and transparent. Highly recommended!",
+    "purchase": true,
+    "purchase_date": "2024-03-15",
+    "car_make": "Toyota",
+    "car_model": "Camry",
+    "car_year": 2023
+  },
+  {
+    "id": 2,
+    "name": "Michael Chang",
+    "dealership": 1,
+    "review": "Very average experience. The paperwork took over three hours and the showroom was crowded. The car is okay though.",
+    "purchase": true,
+    "purchase_date": "2024-04-10",
+    "car_make": "Honda",
+    "car_model": "Civic",
+    "car_year": 2022
+  },
+  {
+    "id": 3,
+    "name": "David Miller",
+    "dealership": 1,
+    "review": "Terrible warranty support. They promised complimentary maintenance for two years but denied it on my first visit. Extremely disappointed.",
+    "purchase": true,
+    "purchase_date": "2024-01-20",
+    "car_make": "Ford",
+    "car_model": "F-150",
+    "car_year": 2021
+  }
+]

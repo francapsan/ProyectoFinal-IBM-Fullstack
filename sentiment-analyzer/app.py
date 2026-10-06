@@ -15,6 +15,38 @@ except LookupError:
 
 sid = SentimentIntensityAnalyzer()
 
+# Enhance VADER with Spanish sentiment terms
+SPANISH_SENTIMENT_LEXICON = {
+    "fantásticos": 3.2,
+    "fantástico": 3.2,
+    "fantástica": 3.2,
+    "fantásticas": 3.2,
+    "excelente": 3.2,
+    "excelentes": 3.2,
+    "maravilloso": 3.0,
+    "maravillosa": 3.0,
+    "increíble": 2.8,
+    "bueno": 2.0,
+    "buenos": 2.0,
+    "buena": 2.0,
+    "buenas": 2.0,
+    "mejor": 2.5,
+    "genial": 2.5,
+    "pésimo": -3.2,
+    "pésimos": -3.2,
+    "terrible": -3.0,
+    "terribles": -3.0,
+    "malo": -2.2,
+    "malos": -2.2,
+    "mala": -2.2,
+    "malas": -2.2,
+    "horrible": -3.0,
+    "descontento": -2.0,
+    "decepción": -2.5,
+    "fraude": -3.5,
+}
+sid.lexicon.update(SPANISH_SENTIMENT_LEXICON)
+
 @app.route("/", methods=["GET"])
 def health_check():
     return jsonify({
