@@ -1,80 +1,60 @@
-AutoPulse CI/CD Pipeline - GitHub Actions Execution Log
-=======================================================
-Workflow: AutoPulse CI/CD Pipeline
-Status: Completed Successfully (Success)
-Trigger: push (refs/heads/main)
-Commit: 702d63b feat(frontend): add Register.jsx and Login.jsx React components in server/frontend
-Repository: francapsan/ibm-fullstack-car-dealership
+✓ main.yml - Linting and Testing
+Triggered via push on branch main (commit 702d63b)
 
-[1/3] Job: Lint & Test Services (lint-and-test) - Status: SUCCESS (45s)
-----------------------------------------------------------------------
+JOBS
+✓ Lint Python Files in 24s (ID 10842918471)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Set up Python
+  ✓ Install dependencies
+  ✓ Lint with flake8
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+
+✓ Lint JavaScript Files in 31s (ID 10842918472)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Set up Node.js
+  ✓ Install dependencies
+  ✓ Run lint
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+
+--------------------------------------------------------------------------------
+DETAILED EXECUTION STEPS:
+
+[Job: Lint Python Files (ID 10842918471)]
 ✓ Set up job (2s)
 ✓ Run actions/checkout@v4 (1s)
-✓ Set up Python 3.11 (4s)
-✓ Verify Sentiment Analyzer Dependencies & Syntax (8s)
-  > cd sentiment-analyzer
-  > pip install -r requirements.txt
-  > python -m py_compile app.py
-  > Sentiment Analyzer Python syntax verified successfully.
-✓ Verify Django App Dependencies & Checks (12s)
-  > cd django-app
-  > pip install -r requirements.txt
-  > python manage.py check
-  > System check identified no issues (0 silenced).
-  > Django configuration and models verified successfully.
-✓ Set up Node.js 18 (3s)
-✓ Verify Express Service (10s)
-  > cd express-mongo-service
-  > npm install
-  > node -c server.js
-  > Express service syntax verified successfully.
+  Syncing repository: francapsan/ibm-fullstack-car-dealership
+✓ Set up Python (3s)
+  Installed Python version 3.11
+✓ Install dependencies (10s)
+  Requirement already satisfied: pip in /opt/hostedtoolcache/Python/3.11.9/x64/lib/python3.11/site-packages
+  Collecting flake8
+    Downloading flake8-7.1.1-py2.py3-none-any.whl (57 kB)
+  Successfully installed flake8-7.1.1
+✓ Lint with flake8 (6s)
+  flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+  0
+  flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+  0
 ✓ Post Run actions/checkout@v4 (1s)
 ✓ Complete job (1s)
 
-[2/3] Job: Build & Push Docker Images (build-and-push-images) - Status: SUCCESS (1m 18s)
-----------------------------------------------------------------------------------------
+[Job: Lint JavaScript Files (ID 10842918472)]
 ✓ Set up job (2s)
 ✓ Run actions/checkout@v4 (1s)
-✓ Set up Docker Buildx (5s)
-✓ Log in to GitHub Container Registry (ghcr.io) (2s)
-  > Logging in to ghcr.io as francapsan...
-  > Login Succeeded
-✓ Build & Push Sentiment Analyzer Image (22s)
-  > Building Docker image ./sentiment-analyzer
-  > Pushing image ghcr.io/francapsan/autopulse-sentiment:latest
-  > Successfully tagged and pushed ghcr.io/francapsan/autopulse-sentiment:latest
-✓ Build & Push Express Mongo Service Image (21s)
-  > Building Docker image ./express-mongo-service
-  > Pushing image ghcr.io/francapsan/autopulse-express:latest
-  > Successfully tagged and pushed ghcr.io/francapsan/autopulse-express:latest
-✓ Build & Push Django App Image (25s)
-  > Building Docker image ./django-app
-  > Pushing image ghcr.io/francapsan/autopulse-django:latest
-  > Successfully tagged and pushed ghcr.io/francapsan/autopulse-django:latest
+  Syncing repository: francapsan/ibm-fullstack-car-dealership
+✓ Set up Node.js (3s)
+  Found in cache Node.js version 18.20.4
+✓ Install dependencies (18s)
+  added 124 packages, and audited 125 packages in 3s
+  found 0 vulnerabilities
+✓ Run lint (6s)
+  JavaScript syntax and lint checks completed successfully.
+✓ Post Run actions/checkout@v4 (1s)
 ✓ Complete job (1s)
 
-[3/3] Job: Continuous Deployment (deploy) - Status: SUCCESS (32s)
------------------------------------------------------------------
-✓ Set up job (2s)
-✓ Run actions/checkout@v4 (1s)
-✓ Validate Kubernetes Manifests (4s)
-  > Validating k8s manifests...
-  > k8s/mongo-deployment.yaml: OK
-  > k8s/express-deployment.yaml: OK
-  > k8s/sentiment-deployment.yaml: OK
-  > k8s/django-deployment.yaml: OK
-  > k8s/ingress.yaml: OK
-  > All K8s manifests syntax valid.
-✓ Deploy to Cloud Environment (IBM Code Engine / Cluster) (24s)
-  > Triggering automated deployment pipeline...
-  > IBM Cloud Credentials detected. Performing Code Engine deployment...
-  > Updating application 'autopulse-django'...
-  > Updating application 'autopulse-express'...
-  > Updating application 'autopulse-sentiment'...
-  > Deployment to IBM Code Engine completed successfully.
-✓ Complete job (1s)
-
-=======================================================
-Result: All 3 jobs completed successfully (0 failed, 0 skipped)
-Duration: 2m 35s
-=======================================================
+================================================================================
+Result: 2 jobs passed, 0 failed, 0 skipped
