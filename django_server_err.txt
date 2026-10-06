@@ -1,0 +1,8 @@
+Error connecting to Express service at http://127.0.0.1:3030: HTTPConnectionPool(host='127.0.0.1', port=3030): Max retries exceeded with url: /dealers (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=3030): Failed to establish a new connection: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión"))
+Error connecting to Express service at http://127.0.0.1:3030: HTTPConnectionPool(host='127.0.0.1', port=3030): Max retries exceeded with url: /dealers (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=3030): Failed to establish a new connection: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión"))
+[06/Oct/2026 16:22:23] "GET / HTTP/1.1" 200 13282
+[06/Oct/2026 16:22:23] "GET /about/ HTTP/1.1" 200 7466
+[06/Oct/2026 16:22:23] "GET /contact/ HTTP/1.1" 200 7010
+Error connecting to Express service at http://127.0.0.1:3030: HTTPConnectionPool(host='127.0.0.1', port=3030): Max retries exceeded with url: /dealers/Kansas (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=3030): Failed to establish a new connection: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión"))
+Error connecting to Express service at http://127.0.0.1:3030: HTTPConnectionPool(host='127.0.0.1', port=3030): Max retries exceeded with url: /dealers (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=3030): Failed to establish a new connection: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión"))
+[06/Oct/2026 16:22:27] "GET /dealers/Kansas/ HTTP/1.1" 200 13395
